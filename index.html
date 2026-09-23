@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koliko kafa za kiriju? | Trosku</title>
+<meta name="description" content="Unesi kiriju lokala i cenu kafe. Saznaj koliko šoljica moraš da prodaš samo da preživiš.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0A0A0A;
+    --card: #161616;
+    --card-hover: #1e1e1e;
+    --yellow: #FFD700;
+    --blue: #3B82F6;
+    --text: #f2f2f2;
+    --muted: #9a9a9a;
+    --border: #2a2a2a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Montserrat', sans-serif;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background-image:
+      radial-gradient(ellipse 80% 40% at 50% -10%, rgba(255,215,0,0.07), transparent),
+      radial-gradient(ellipse 60% 40% at 50% 110%, rgba(59,130,246,0.06), transparent);
+    overflow-x: hidden;
+  }
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding: 0 20px;
+    position: relative;
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 0 6px;
+    min-height: 58px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s ease;
+  }
+  .topbar.visible { opacity: 1; pointer-events: auto; }
+  .back-btn {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-size: 18px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all .15s ease;
+    visibility: hidden;
+  }
+  .back-btn.visible { visibility: visible; }
+  .back-btn:hover { border-color: var(--yellow); color: var(--yellow); }
+  .back-btn:active { transform: scale(0.93); }
+  .topbar .logo-small {
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 4px;
+    color: var(--yellow);
+  }
+  .dots { display: flex; gap: 6px; }
+  .dots span {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #2c2c2c;
+    transition: all .3s ease;
+  }
+  .dots span.on {
+    background: var(--yellow);
+    box-shadow: 0 0 8px rgba(255,215,0,0.5);
+  }
+
+  /* ---------- Screens ---------- */
+  .screen {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    padding-bottom: 28px;
+    animation: slideIn .35s ease;
+  }
+  .screen.active { display: flex; }
+  .screen.back-anim { animation: slideBack .35s ease; }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(40px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slideBack {
+    from { opacity: 0; transform: translateX(-40px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  h2 {
+    font-size: clamp(24px, 7vw, 32px);
+    font-weight: 900;
+    line-height: 1.15;
+    margin: 14px 0 6px;
+  }
+  h2 .hl { color: var(--yellow); }
+  .step-sub { color: var(--muted); font-size: 14px; font-weight: 600; margin-bottom: 20px; }
+
+  /* ---------- Intro ---------- */
+  #screen-intro {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: calc(100vh - 58px);
+    min-height: calc(100dvh - 58px);
+    padding-bottom: 0;
+  }
+  .intro-logo {
+    font-size: clamp(44px, 13vw, 64px);
+    font-weight: 900;
+    letter-spacing: 10px;
+    color: var(--yellow);
+    text-shadow: 0 0 60px rgba(255,215,0,0.5), 0 0 20px rgba(255,215,0,0.35);
+    animation: logoIn 1s ease backwards;
+  }
+  @keyframes logoIn {
+    from { opacity: 0; transform: scale(0.85); letter-spacing: 22px; filter: blur(6px); }
+    to { opacity: 1; transform: scale(1); letter-spacing: 10px; filter: blur(0); }
+  }
+  .intro-line {
+    width: 56px; height: 3px;
+    background: var(--blue);
+    border-radius: 2px;
+    margin: 22px auto;
+    box-shadow: 0 0 14px rgba(59,130,246,0.6);
+    animation: lineIn .8s ease .5s backwards;
+  }
+  @keyframes lineIn { from { width: 0; opacity: 0; } to { width: 56px; opacity: 1; } }
+  .intro-title {
+    font-size: clamp(26px, 8vw, 36px);
+    font-weight: 900;
+    line-height: 1.15;
+    animation: fadeUp .7s ease .7s backwards;
+  }
+  .intro-title .hl { color: var(--yellow); }
+  .intro-sub {
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 600;
+    animation: fadeUp .7s ease .9s backwards;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .intro-cta { margin-top: 38px; animation: fadeUp .7s ease 1.15s backwards; }
+  .intro-badge {
+    margin-top: 26px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    animation: fadeUp .7s ease 1.3s backwards;
+  }
+  .intro-badge b { color: var(--blue); }
+
+  /* ---------- Buttons ---------- */
+  .btn-primary {
+    display: block;
+    width: 100%;
+    background: var(--yellow);
+    color: #0A0A0A;
+    border: none;
+    border-radius: 14px;
+    padding: 17px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-shadow: 0 0 30px rgba(255,215,0,0.3);
+    transition: all .2s ease;
+  }
+  .btn-primary:hover { box-shadow: 0 0 44px rgba(255,215,0,0.5); transform: translateY(-1px); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-next { margin-top: auto; }
+
+  /* ---------- Country grid ---------- */
+  .countries {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .country {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 4px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s ease;
+    user-select: none;
+    font-family: inherit;
+  }
+  .country .flag { font-size: 28px; display: block; }
+  .country .cname {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text);
+    margin-top: 6px;
+    display: block;
+  }
+  .country .ccur { font-size: 10px; font-weight: 600; color: var(--muted); display: block; margin-top: 2px; }
+  .country:hover { background: var(--card-hover); transform: translateY(-2px); }
+  .country.active {
+    border-color: var(--yellow);
+    background: rgba(255,215,0,0.08);
+    box-shadow: 0 0 18px rgba(255,215,0,0.18);
+  }
+  .country.active .cname { color: var(--yellow); }
+
+  /* ---------- Rent input ---------- */
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 18px;
+  }
+  .rent-row { display: flex; align-items: center; gap: 10px; }
+  .stepper {
+    width: 48px; height: 48px;
+    flex: 0 0 48px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--card-hover);
+    color: var(--yellow);
+    font-size: 24px;
+    font-weight: 800;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  .stepper:hover { border-color: var(--yellow); box-shadow: 0 0 14px rgba(255,215,0,0.2); }
+  .stepper:active { transform: scale(0.93); }
+  .rent-input-box { flex: 1; display: flex; align-items: baseline; justify-content: center; gap: 6px; }
+  #rentInput {
+    width: 100%;
+    max-width: 170px;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 40px;
+    font-weight: 800;
+    text-align: right;
+    -moz-appearance: textfield;
+  }
+  #rentInput::-webkit-outer-spin-button, #rentInput::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .cur { color: var(--yellow); font-size: 22px; font-weight: 800; }
+  input[type=range] {
+    width: 100%;
+    margin-top: 20px;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to right, var(--yellow) var(--fill, 20%), #2c2c2c var(--fill, 20%));
+    outline: none;
+    cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--yellow);
+    box-shadow: 0 0 16px rgba(255,215,0,0.5);
+    border: 3px solid #0A0A0A;
+    cursor: grab;
+  }
+  input[type=range]::-moz-range-thumb {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--yellow);
+    box-shadow: 0 0 16px rgba(255,215,0,0.5);
+    border: 3px solid #0A0A0A;
+    cursor: grab;
+  }
+  .rent-hint { margin-top: 12px; font-size: 12px; color: var(--muted); text-align: center; font-weight: 600; line-height: 1.5; }
+  .rent-note {
+    margin-top: 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--blue);
+    text-align: center;
+  }
+
+  /* ---------- Coffee cards ---------- */
+  .coffees {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .coffee {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 8px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s ease;
+    user-select: none;
+    font-family: inherit;
+    color: var(--text);
+  }
+  .coffee:hover { background: var(--card-hover); transform: translateY(-2px); }
+  .coffee.active {
+    border-color: var(--blue);
+    background: rgba(59,130,246,0.1);
+    box-shadow: 0 0 18px rgba(59,130,246,0.25);
+  }
+  .coffee svg { width: 34px; height: 34px; display: block; margin: 0 auto 6px; }
+  .coffee .kname { font-size: 13px; font-weight: 700; display: block; }
+  .coffee .kprice { font-size: 12px; font-weight: 600; color: var(--muted); display: block; margin-top: 3px; }
+  .coffee.active .kprice { color: var(--blue); }
+
+  .price-edit {
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 20px;
+  }
+  .price-edit label { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  #priceInput {
+    width: 96px;
+    background: var(--card-hover);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--blue);
+    font-family: inherit;
+    font-size: 20px;
+    font-weight: 800;
+    text-align: center;
+    padding: 9px 4px;
+    outline: none;
+    -moz-appearance: textfield;
+  }
+  #priceInput::-webkit-outer-spin-button, #priceInput::-webkit-inner-spin-button { -webkit-appearance: none; }
+  #priceInput:focus { border-color: var(--blue); box-shadow: 0 0 12px rgba(59,130,246,0.3); }
+  .price-cur { color: var(--blue); font-size: 16px; font-weight: 800; }
+
+  /* ---------- Result ---------- */
+  #screen-result { text-align: center; }
+  .result-label {
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .big-number {
+    font-size: clamp(84px, 26vw, 130px);
+    font-weight: 900;
+    line-height: 1;
+    color: var(--yellow);
+    text-shadow: 0 0 60px rgba(255,215,0,0.45), 0 0 20px rgba(255,215,0,0.3);
+    margin: 6px 0 2px;
+    font-variant-numeric: tabular-nums;
+  }
+  .big-number.bump { animation: bump .45s ease; }
+  @keyframes bump {
+    0% { transform: scale(0.92); }
+    55% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  .big-unit { font-size: 17px; font-weight: 800; letter-spacing: 0.5px; }
+  .big-unit .hl { color: var(--yellow); }
+  .cups {
+    margin: 16px auto 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+    max-width: 340px;
+    min-height: 30px;
+  }
+  .cups .cup {
+    font-size: 22px;
+    animation: popIn .3s ease backwards;
+    filter: drop-shadow(0 0 6px rgba(255,215,0,0.25));
+  }
+  .cups .more {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--yellow);
+    align-self: center;
+    animation: popIn .3s ease backwards;
+  }
+  @keyframes popIn {
+    from { transform: scale(0) rotate(-20deg); opacity: 0; }
+    to { transform: scale(1) rotate(0); opacity: 1; }
+  }
+  .punchline {
+    margin: 20px 0 0;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.55;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--yellow);
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-align: left;
+  }
+  .punchline b { color: var(--yellow); }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 10px;
+  }
+  .stat .sv { font-size: 21px; font-weight: 800; color: var(--blue); font-variant-numeric: tabular-nums; }
+  .stat .sl { font-size: 11px; font-weight: 600; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+
+  .sc-label {
+    margin: 22px 0 10px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+  }
+  .scenarios { display: grid; gap: 8px; }
+  .scenario {
+    background: var(--card);
+    border: 1px solid rgba(59,130,246,0.35);
+    border-radius: 12px;
+    padding: 13px 14px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    transition: all .2s ease;
+    text-align: left;
+  }
+  .scenario:hover { background: rgba(59,130,246,0.1); box-shadow: 0 0 16px rgba(59,130,246,0.2); transform: translateY(-1px); }
+  .scenario:active { transform: scale(0.98); }
+  .scenario .diff { font-size: 13px; font-weight: 800; color: var(--blue); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .scenario.reset-btn { border-color: var(--border); color: var(--muted); }
+  .scenario.reset-btn:hover { box-shadow: none; background: var(--card-hover); }
+  .btn-restart {
+    margin-top: 18px;
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s ease;
+  }
+  .btn-restart:hover { border-color: var(--yellow); color: var(--yellow); }
+
+  footer {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 8px 0 24px;
+  }
+  footer a { color: var(--yellow); text-decoration: none; opacity: 0.75; transition: opacity .2s; }
+  footer a:hover { opacity: 1; text-shadow: 0 0 12px rgba(255,215,0,0.5); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar" id="topbar">
+    <button class="back-btn" id="backBtn" aria-label="Nazad">←</button>
+    <span class="logo-small">TROSKU</span>
+    <div class="dots" id="dots"><span></span><span></span><span></span><span></span></div>
+  </div>
+
+  <!-- INTRO -->
+  <section class="screen active" id="screen-intro">
+    <div class="intro-logo">TROSKU</div>
+    <div class="intro-line"></div>
+    <div class="intro-title">Koliko <span class="hl">kafa</span><br>za kiriju?</div>
+    <p class="intro-sub">Unesi brojke. Boli, ali je istina.</p>
+    <div class="intro-cta" style="width:100%"><button class="btn-primary" id="startBtn">Kreni →</button></div>
+    <div class="intro-badge"><b>30 DAY BUILD</b> · DAN ZA DANOM · TROSKU.COM</div>
+  </section>
+
+  <!-- 1: COUNTRY -->
+  <section class="screen" id="screen-country">
+    <h2>Gde ti je <span class="hl">lokal</span>?</h2>
+    <p class="step-sub">Izbor zemlje popunjava prosečne cene — sve možeš da izmeniš.</p>
+    <div class="countries" id="countries"></div>
+  </section>
+
+  <!-- 2: RENT -->
+  <section class="screen" id="screen-rent">
+    <h2>Kolika ti je <span class="hl">kirija</span>?</h2>
+    <p class="step-sub" id="rentStepSub">Mesečno, za lokal.</p>
+    <div class="panel">
+      <div class="rent-row">
+        <button class="stepper" id="rentMinus" aria-label="Smanji kiriju">−</button>
+        <div class="rent-input-box">
+          <input type="number" id="rentInput" min="0" step="50" inputmode="numeric">
+          <span class="cur">€</span>
+        </div>
+        <button class="stepper" id="rentPlus" aria-label="Povećaj kiriju">+</button>
+      </div>
+      <input type="range" id="rentSlider" min="100" max="8000" step="50">
+      <div class="rent-hint" id="rentHint"></div>
+    </div>
+    <p class="rent-note">ℹ️ Kirija je uvek u evrima — tako je i u ugovoru.</p>
+    <button class="btn-primary btn-next" id="rentNext">Dalje →</button>
+  </section>
+
+  <!-- 3: COFFEE -->
+  <section class="screen" id="screen-coffee">
+    <h2>Šta <span class="hl">prodaješ</span>?</h2>
+    <p class="step-sub" id="coffeeStepSub">Cene su u lokalnoj valuti.</p>
+    <div class="coffees" id="coffees"></div>
+    <div class="price-edit">
+      <label for="priceInput">Tvoja cena</label>
+      <input type="number" id="priceInput" min="0" step="any" inputmode="decimal">
+      <span class="price-cur" id="priceCur"></span>
+    </div>
+    <button class="btn-primary btn-next" id="coffeeNext">Izračunaj →</button>
+  </section>
+
+  <!-- 4: RESULT -->
+  <section class="screen" id="screen-result">
+    <div class="result-label">Moraš da prodaš</div>
+    <div class="big-number" id="bigNumber">0</div>
+    <div class="big-unit"><span class="hl" id="coffeeName">espresa</span> DNEVNO · samo za kiriju</div>
+    <div class="cups" id="cups"></div>
+    <div class="punchline" id="punchline"></div>
+    <div class="stats">
+      <div class="stat"><div class="sv" id="statMonthly">0</div><div class="sl">kafa mesečno</div></div>
+      <div class="stat"><div class="sv" id="statTime">0</div><div class="sl">non-stop ispijanja<br>(1 na 5 min)</div></div>
+    </div>
+    <div class="sc-label">Šta ako…?</div>
+    <div class="scenarios">
+      <button class="scenario" id="scPrice">☕ Podigni cenu za 20% <span class="diff" id="scPriceDiff"></span></button>
+      <button class="scenario" id="scVienna">🇦🇹 Kirija kao u Beču <span class="diff" id="scViennaDiff"></span></button>
+      <button class="scenario" id="scPrague">🇨🇿 Kirija kao u Pragu <span class="diff" id="scPragueDiff"></span></button>
+      <button class="scenario reset-btn" id="scReset" style="display:none">↩ Vrati moje brojke</button>
+    </div>
+    <button class="btn-restart" id="restartBtn">↺ Kreni ispočetka</button>
+  </section>
+
+  <footer><a href="https://trosku.com" target="_blank" rel="noopener">trosku.com</a></footer>
+</div>
+
+<script>
+// ---------- Podaci ----------
+// Valute: rate = koliko lokalne valute za 1 EUR. Kirija je UVEK u EUR.
+const CURRENCIES = {
+  EUR: { code: 'EUR', symbol: '€',   rate: 1,      dec: 2 },
+  RSD: { code: 'RSD', symbol: 'din', rate: 117.2,  dec: 0 },
+  BAM: { code: 'BAM', symbol: 'KM',  rate: 1.9558, dec: 2 },
+  MKD: { code: 'MKD', symbol: 'den', rate: 61.5,   dec: 0 },
+  CZK: { code: 'CZK', symbol: 'Kč',  rate: 25.2,   dec: 0 },
+  HUF: { code: 'HUF', symbol: 'Ft',  rate: 395,    dec: 0 },
+};
+
+// Kirija: realan raspon za mali lokal (50-80m²) u glavnom gradu, EUR/mesečno.
+// espresso: prosečna cena espresa u LOKALNOJ valuti te zemlje.
+const COUNTRIES = [
+  { id:'rs', flag:'🇷🇸', name:'Srbija',        city:'Beogradu',   cur:'RSD', rentMin:800,  rentMax:1500, rent:1100, espresso:200 },
+  { id:'hr', flag:'🇭🇷', name:'Hrvatska',      city:'Zagrebu',    cur:'EUR', rentMin:1000, rentMax:2000, rent:1400, espresso:1.9 },
+  { id:'ba', flag:'🇧🇦', name:'BiH',           city:'Sarajevu',   cur:'BAM', rentMin:600,  rentMax:1200, rent:850,  espresso:2.5 },
+  { id:'me', flag:'🇲🇪', name:'Crna Gora',     city:'Podgorici',  cur:'EUR', rentMin:600,  rentMax:1300, rent:900,  espresso:1.5 },
+  { id:'mk', flag:'🇲🇰', name:'S. Makedonija', city:'Skoplju',    cur:'MKD', rentMin:500,  rentMax:1100, rent:750,  espresso:90 },
+  { id:'si', flag:'🇸🇮', name:'Slovenija',     city:'Ljubljani',  cur:'EUR', rentMin:1200, rentMax:2500, rent:1800, espresso:1.7 },
+  { id:'at', flag:'🇦🇹', name:'Austrija',      city:'Beču',       cur:'EUR', rentMin:3000, rentMax:5000, rent:4000, espresso:3.2 },
+  { id:'de', flag:'🇩🇪', name:'Nemačka',       city:'Berlinu',    cur:'EUR', rentMin:2500, rentMax:4500, rent:3500, espresso:2.8 },
+  { id:'cz', flag:'🇨🇿', name:'Češka',         city:'Pragu',      cur:'CZK', rentMin:1500, rentMax:2500, rent:2000, espresso:55 },
+  { id:'hu', flag:'🇭🇺', name:'Mađarska',      city:'Budimpešti', cur:'HUF', rentMin:1200, rentMax:2200, rent:1600, espresso:750 },
+  { id:'it', flag:'🇮🇹', name:'Italija',       city:'Rimu',       cur:'EUR', rentMin:2000, rentMax:4000, rent:2800, espresso:1.2 },
+];
+
+const CUP_SMALL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 9h12v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9z"/><path d="M16 10h2a2.5 2.5 0 0 1 0 5h-2"/><path d="M8 5.5c0-1 .8-1 .8-2M11.5 5.5c0-1 .8-1 .8-2"/></svg>';
+const CUP_FOAM  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 10h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-5z"/><path d="M17 11h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M5.5 10c0-2 2-3.5 5-3.5s5 1.5 5 3.5"/></svg>';
+const CUP_TALL  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 4h10l-1.5 16h-7L7 4z"/><path d="M7.6 9.5h8.8M8.3 15h7.4"/></svg>';
+const CUP_FLAT  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4.5 10h14v4.5a4.5 4.5 0 0 1-4.5 4.5h-5a4.5 4.5 0 0 1-4.5-4.5V10z"/><path d="M8 13c1.3-1.6 2.7 1.6 4 0s2.7 1.6 4 0"/></svg>';
+const CUP_DRIP  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3h12M8 3l1 5h6l1-5M9 8l-2 5h10l-2-5M7 13v4a4 4 0 0 0 4 4h2a4 4 0 0 0 4-4v-4"/></svg>';
+const CUP_TOGO  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 7h14l-1 3H6L5 7zM6.5 10l1.2 11h8.6l1.2-11"/><path d="M5.5 4.5h13V7h-13z"/></svg>';
+
+// mult = odnos prema ceni espresa u toj zemlji
+const COFFEES = [
+  { id:'espresso', name:'Espreso',      gen:'espresa',        mult:1.0,  icon:CUP_SMALL },
+  { id:'capp',     name:'Kapućino',     gen:'kapućina',       mult:1.45, icon:CUP_FOAM },
+  { id:'latte',    name:'Late',         gen:'latea',          mult:1.65, icon:CUP_TALL },
+  { id:'flat',     name:'Flet vajt',    gen:'flet vajtova',   mult:1.75, icon:CUP_FLAT },
+  { id:'filter',   name:'Filter kafa',  gen:'filter kafa',    mult:1.35, icon:CUP_DRIP },
+  { id:'togo',     name:'Za poneti',    gen:'kafa za poneti', mult:1.55, icon:CUP_TOGO },
+];
+
+// ---------- Stanje ----------
+const state = {
+  country: COUNTRIES[0],
+  coffee: COFFEES[0],
+  rent: COUNTRIES[0].rent,      // uvek EUR
+  price: COUNTRIES[0].espresso, // lokalna valuta
+  saved: null,
+};
+
+const $ = id => document.getElementById(id);
+const fmt = n => n.toLocaleString('sr-Latn-RS');
+
+function cur() { return CURRENCIES[state.country.cur]; }
+function roundPrice(n, c) {
+  const f = c.dec > 0 ? 10 : 1;
+  return Math.round(n * f) / f;
+}
+function fmtPrice(n, c) {
+  return n.toLocaleString('sr-Latn-RS', { maximumFractionDigits: c.dec }) + ' ' + c.symbol;
+}
+function defaultPrice(country, coffee) {
+  return roundPrice(country.espresso * coffee.mult, CURRENCIES[country.cur]);
+}
+function priceEUR() {
+  return Math.max(0.01, state.price / cur().rate);
+}
+
+// ---------- Navigacija ----------
+const SCREENS = ['intro', 'country', 'rent', 'coffee', 'result'];
+let current = 0;
+function show(idx, backwards) {
+  current = idx;
+  SCREENS.forEach((s, i) => {
+    const el = $('screen-' + s);
+    el.classList.toggle('active', i === idx);
+    el.classList.remove('back-anim');
+  });
+  if (backwards) $('screen-' + SCREENS[idx]).classList.add('back-anim');
+  $('topbar').classList.toggle('visible', idx > 0);
+  $('backBtn').classList.toggle('visible', idx > 0);
+  document.querySelectorAll('#dots span').forEach((d, i) => d.classList.toggle('on', i < idx));
+  window.scrollTo({ top: 0 });
+  if (idx === 4) runResult();
+}
+$('startBtn').addEventListener('click', () => show(1));
+$('backBtn').addEventListener('click', () => show(Math.max(0, current - 1), true));
+$('rentNext').addEventListener('click', () => show(3));
+$('coffeeNext').addEventListener('click', () => show(4));
+$('restartBtn').addEventListener('click', () => {
+  state.saved = null;
+  $('scReset').style.display = 'none';
+  show(1, true);
+});
+
+// ---------- Ekran: zemlja ----------
+const countriesEl = $('countries');
+COUNTRIES.forEach(c => {
+  const btn = document.createElement('button');
+  btn.className = 'country';
+  btn.dataset.id = c.id;
+  btn.innerHTML = `<span class="flag">${c.flag}</span><span class="cname">${c.name}</span><span class="ccur">${c.cur}</span>`;
+  btn.addEventListener('click', () => {
+    state.country = c;
+    state.rent = c.rent;
+    state.price = defaultPrice(c, state.coffee);
+    state.saved = null;
+    $('scReset').style.display = 'none';
+    syncAll();
+    setTimeout(() => show(2), 180);
+  });
+  countriesEl.appendChild(btn);
+});
+
+// ---------- Ekran: kirija ----------
+const rentInput = $('rentInput');
+const rentSlider = $('rentSlider');
+rentInput.addEventListener('input', () => {
+  const v = parseFloat(rentInput.value);
+  if (!isNaN(v) && v >= 0) { state.rent = v; syncSlider(); }
+});
+rentSlider.addEventListener('input', () => {
+  state.rent = parseFloat(rentSlider.value);
+  rentInput.value = state.rent;
+  syncSlider();
+});
+$('rentMinus').addEventListener('click', () => { state.rent = Math.max(0, state.rent - 100); syncRent(); });
+$('rentPlus').addEventListener('click', () => { state.rent += 100; syncRent(); });
+
+function syncSlider() {
+  const min = +rentSlider.min, max = +rentSlider.max;
+  const val = Math.min(Math.max(state.rent, min), max);
+  rentSlider.value = val;
+  rentSlider.style.setProperty('--fill', ((val - min) / (max - min) * 100) + '%');
+}
+function syncRent() {
+  rentInput.value = state.rent;
+  syncSlider();
+  $('rentStepSub').textContent = `Mesečno, za lokal u ${state.country.city}.`;
+  $('rentHint').textContent = `Prosek u ${state.country.city}: ${fmt(state.country.rentMin)}–${fmt(state.country.rentMax)} € (slobodno menjaj)`;
+}
+
+// ---------- Ekran: kafa ----------
+const coffeesEl = $('coffees');
+COFFEES.forEach(k => {
+  const btn = document.createElement('button');
+  btn.className = 'coffee';
+  btn.dataset.id = k.id;
+  btn.innerHTML = `${k.icon}<span class="kname">${k.name}</span><span class="kprice" data-price></span>`;
+  btn.addEventListener('click', () => {
+    state.coffee = k;
+    state.price = defaultPrice(state.country, k);
+    syncCoffee();
+  });
+  coffeesEl.appendChild(btn);
+});
+const priceInput = $('priceInput');
+priceInput.addEventListener('input', () => {
+  const v = parseFloat(priceInput.value);
+  if (!isNaN(v) && v > 0) state.price = v;
+});
+function syncCoffee() {
+  const c = cur();
+  $('coffeeStepSub').textContent = `Cene su u lokalnoj valuti (${c.code}) — kirija ostaje u evrima.`;
+  $('priceCur').textContent = c.symbol;
+  priceInput.value = state.price;
+  priceInput.step = c.dec > 0 ? '0.1' : '1';
+  document.querySelectorAll('.country').forEach(el =>
+    el.classList.toggle('active', el.dataset.id === state.country.id));
+  document.querySelectorAll('.coffee').forEach(el => {
+    const k = COFFEES.find(x => x.id === el.dataset.id);
+    el.classList.toggle('active', k.id === state.coffee.id);
+    el.querySelector('[data-price]').textContent = fmtPrice(defaultPrice(state.country, k), c);
+  });
+}
+function syncAll() { syncRent(); syncCoffee(); }
+
+// ---------- Rezultat ----------
+let animId = null;
+let currentShown = 0;
+function animateNumber(target) {
+  cancelAnimationFrame(animId);
+  const from = currentShown;
+  const dur = 800;
+  const start = performance.now();
+  const el = $('bigNumber');
+  el.classList.remove('bump');
+  void el.offsetWidth;
+  el.classList.add('bump');
+  function tick(now) {
+    const t = Math.min((now - start) / dur, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+    currentShown = Math.round(from + (target - from) * ease);
+    el.textContent = fmt(currentShown);
+    if (t < 1) animId = requestAnimationFrame(tick);
+  }
+  animId = requestAnimationFrame(tick);
+}
+function renderCups(daily) {
+  const el = $('cups');
+  el.innerHTML = '';
+  const maxCups = 24;
+  const shown = Math.min(daily, maxCups);
+  for (let i = 0; i < shown; i++) {
+    const s = document.createElement('span');
+    s.className = 'cup';
+    s.textContent = '☕';
+    s.style.animationDelay = (i * 0.03) + 's';
+    el.appendChild(s);
+  }
+  if (daily > maxCups) {
+    const m = document.createElement('span');
+    m.className = 'more';
+    m.textContent = `+${fmt(daily - maxCups)}`;
+    m.style.animationDelay = (shown * 0.03) + 's';
+    el.appendChild(m);
+  }
+}
+function runResult() {
+  const rent = Math.max(0, state.rent || 0);
+  const pEur = priceEUR();
+  const monthly = Math.ceil(rent / pEur);
+  const daily = Math.ceil((rent / 30) / pEur);
+
+  currentShown = 0;
+  animateNumber(daily);
+  renderCups(daily);
+
+  $('coffeeName').textContent = state.coffee.gen;
+  $('statMonthly').textContent = fmt(monthly);
+
+  const hours = monthly * 5 / 60;
+  const days = hours / 24;
+  $('statTime').textContent = days >= 2
+    ? (Math.round(days * 10) / 10).toLocaleString('sr-Latn-RS') + ' dana'
+    : (Math.round(hours * 10) / 10).toLocaleString('sr-Latn-RS') + ' sati';
+
+  $('punchline').innerHTML =
+    `Za kiriju od <b>${fmt(Math.round(rent))} €</b> u ${state.country.city}, uz kafu od ` +
+    `<b>${fmtPrice(state.price, cur())}</b>, moraš da prodaš <b>${fmt(daily)} ${state.coffee.gen}</b> ` +
+    `DNEVNO samo da preživiš — pre struje, plata i robe. Svaki dan. Bez pauze.`;
+
+  updateScenarioDiffs();
+}
+
+// ---------- Scenariji ----------
+function dailyFor(rentEur, priceLocal) {
+  return Math.ceil((rentEur / 30) / Math.max(0.01, priceLocal / cur().rate));
+}
+function diffLabel(newDaily) {
+  const d = newDaily - dailyFor(state.rent, state.price);
+  if (d === 0) return '±0';
+  return (d > 0 ? '+' : '−') + fmt(Math.abs(d)) + '/dan';
+}
+function updateScenarioDiffs() {
+  const vienna = COUNTRIES.find(c => c.id === 'at');
+  const prague = COUNTRIES.find(c => c.id === 'cz');
+  $('scPriceDiff').textContent = diffLabel(dailyFor(state.rent, state.price * 1.2));
+  $('scViennaDiff').textContent = diffLabel(dailyFor(vienna.rent, state.price));
+  $('scPragueDiff').textContent = diffLabel(dailyFor(prague.rent, state.price));
+}
+function saveSnapshot() {
+  if (!state.saved) {
+    state.saved = { rent: state.rent, price: state.price };
+    $('scReset').style.display = 'flex';
+  }
+}
+$('scPrice').addEventListener('click', () => {
+  saveSnapshot();
+  state.price = roundPrice(state.price * 1.2, cur());
+  syncAll(); runResult();
+});
+$('scVienna').addEventListener('click', () => {
+  saveSnapshot();
+  state.rent = COUNTRIES.find(x => x.id === 'at').rent;
+  syncAll(); runResult();
+});
+$('scPrague').addEventListener('click', () => {
+  saveSnapshot();
+  state.rent = COUNTRIES.find(x => x.id === 'cz').rent;
+  syncAll(); runResult();
+});
+$('scReset').addEventListener('click', () => {
+  if (state.saved) {
+    state.rent = state.saved.rent;
+    state.price = state.saved.price;
+    state.saved = null;
+  }
+  $('scReset').style.display = 'none';
+  syncAll(); runResult();
+});
+
+// ---------- Init ----------
+syncAll();
+</script>
+</body>
+</html>
